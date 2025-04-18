@@ -52,6 +52,10 @@ __int32 get_com_desc(char* buf,__int32 size,char* name)
 __int32 get_ver(char* buf, __int32 size)
 ```
 
+### Known issues
+I'm not sure how exactly to handle unicode strings. Windows API functions for extracting the descriptors are using wchar_t strings, but when I try to print to console using e.g. wprintf(), it generates some mess when localized characters are used. So, it is advisable to not use anything but basic ASCII for naming the devices...
+
+
 ## LabVIEW DLL wrapper
 I use lot of COM port devices in LabVIEW projects, so I also made a simple DLL wrapper for LabVIEW 2020. See [Get COM Descritor.lvlib](./LabView/). NI VISA driver kind of can do it by itself, but as explained earlier, it does not work for all USB chips. There are just a few VIs. 
 
@@ -69,4 +73,4 @@ I use lot of COM port devices in LabVIEW projects, so I also made a simple DLL w
 
 
 ## License
-All parts of the project are distributed under [MIT license](./LICENSE).
+All parts of the project are distributed under [MIT license](./LICENSE.txt).
