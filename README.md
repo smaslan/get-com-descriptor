@@ -55,18 +55,18 @@ __int32 get_ver(char* buf, __int32 size)
 ## LabVIEW DLL wrapper
 I use lot of COM port devices in LabVIEW projects, so I also made a simple DLL wrapper for LabVIEW 2020. See [Get COM Descritor.lvlib](./LabView/). NI VISA driver kind of can do it by itself, but as explained earlier, it does not work for all USB chips. There are just a few VIs. 
 
-![Get DLL version](./fig/get_com_desc_ver.png)
+![Get DLL version](./fig/get_com_desc_get_ver.png)
 
-![List COM ports](./fig/get_com_desc_list.png)
+![List COM ports](./fig/get_com_desc_get_list.png)
 
 ![Get COM by Descriptor](./fig/get_com_desc_get_by_desc.png)
 
 ![Get Descriptor for COM port](./fig/get_com_desc_get_desc.png)
 
-![Get Descriptor from VISA](./fig/get_com_desc_get_from_visa.png)
+![Get Descriptor from VISA](./fig/get_com_desc_get_desc_from_visa.png)
 
 ![Open VISA by COM descritor](./fig/get_com_desc_open_visa.png)
 
 
 ## License
-All parts of the project are distributed under [MIT license](./README.txt).
+All parts of the project are distributed under [MIT license](./LICENSE).
