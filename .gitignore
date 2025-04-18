@@ -1,0 +1,7 @@
+/msvc/.vs*
+/msvc/Debug*
+/msvc/dll/*
+!/msvc/dll/*.dll
+!/msvc/dll/*.lib
+/msvc/Release/*
+!/msvc/Release/*.exe
