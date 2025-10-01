@@ -52,8 +52,8 @@
 
 
 // DLL entry points
-DllExport __int32 get_com_list(char* buf,__int32 size);
-DllExport __int32 get_com_by_desc(char* buf,__int32 size,char* desc);
-DllExport __int32 get_com_desc(char* buf,__int32 size,char* name);
+DllExport __int32 get_com_list(char* buf,__int32 size,__int32 to_ascii);
+DllExport __int32 get_com_by_desc(char* buf,__int32 size,char* desc,__int32 to_ascii);
+DllExport __int32 get_com_desc(char* buf,__int32 size,char* name,__int32 to_ascii);
 DllExport __int32 get_ver(char* buf,__int32 size);
 

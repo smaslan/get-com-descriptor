@@ -1,4 +1,4 @@
-//-----------------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------------
 // Simple tool to obtain user programmed names of USB-COM port chips.
 // The names are usually stored in internal or external EEPROM.
 // Problem is that different chips stores the user string in different 
@@ -104,6 +104,91 @@ std::string wstring_to_utf8(const std::wstring& str)
 {
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> myconv;
 	return myconv.to_bytes(str);
+}
+
+// converts wstring to ascii string (removes accents, then leaves out anything >255)
+std::string str_to_ascii(std::wstring str)
+{
+	typedef struct {
+		std::string rep;
+		std::wstring list;
+	}TDictElement;
+	static std::vector<TDictElement> dict ={
+		{"A",L"ÀÁÂÃÄÅĀĂĄǍǞǠǺȀȂȦȺΆΑḀẠẢẤẦẨẪẬẮẰẲẴẶἈἉἊἋἌἍἎἏᾈᾉᾊᾋᾌᾍᾎᾏᾸᾹᾺΆᾼ"},
+		{"AE",L"ÆǢǼ"},
+		{"B",L"ḂḄḆ"},
+		{"C",L"ÇĆĈĊČƇḈ"},
+		{"D",L"ĎĐƉƊḊḌḎḐḒ"},
+		{"E",L"ÈÉÊËĒĔĖĘĚȄȆȨɆΕЀЁḔḖḘḚḜẸẺẼẾỀỂỄỆἘἙἚἛἜἝῈΈ"},
+		{"F",L"ƑḞ"},
+		{"G",L"ĜĞĠĢƓǤǦǴḠ"},
+		{"H",L"ĤĦȞΉΗḢḤḦḨḪἨἩἪἫἬἭἮἯᾘᾙᾚᾛᾜᾝᾞᾟῊΉῌ"},
+		{"I",L"ÌÍÎÏĨĪĬĮİǏȈȊΙḬḮỈỊἸἹἺἻἼἽἾἿῘῙῚΊ"},
+		{"J",L"Ĵ"},
+		{"K",L"ĶΚǨḰḲḴ"},
+		{"L",L"ĹĻĽĿŁḶḸḺḼ"},
+		{"M",L"ΜḾṀṂ"},
+		{"N",L"ŃŅŇΝṄṆṈṊ"},
+		{"O",L"ÒÓÔÕÖØŌŎŐƟǑǪǬǾȌȎȪȬȮȰʘΌΘΟṌṎṐṒỌỎỐỒỔỖỘỚỜỞỠỢὈὉὊὋὌὍ"},
+		{"P",L"ƤΡṔṖ"},
+		{"R",L"ŔŖŘƦȐȒɌṘṚṜṞ"},
+		{"S",L"ŠŚŜŞŠȘṠṢṤṦṨ"},
+		{"T",L"ŢŤŦƬƮȚȾͲͳΤṪṬṮṰ"},
+		{"U",L"ÙÚÛÜŨŪŬŮŰŲƲǓǕǗǙǛȔȖṲṴṶṸṺỤỦỨỪỬỮỰ"},
+		{"V",L"ƔṼṾ"},
+		{"W",L"ẀẂẄẆẈ"},
+		{"X",L"ẊẌ"},
+		{"Y",L"ŸŶŸȲÝẎỲỴỶỸỾὙὛὝὟῨῩῪΎ"},
+		{"Z",L"ŽŹŻŽȤΖẐẒẔ"},
+		{"a",L"àáâãäåāăąǎǟǡǻȁȃȧḁẚạảấầẩẫậắằẳẵặἀἁἂἃἄἅἆἇὰάᾀᾁᾂᾃᾄᾅᾆᾇᾰᾱᾲᾳᾴᾶᾷ"},
+		{"ae",L"æǣǽ"},
+		{"b",L"ḃḅḇ"},
+		{"c",L"çćĉċčƈȼḉ"},
+		{"d",L"ďđƋƌḋḍḏḑḓ"},
+		{"e",L"èéêëēĕėęěȅȇȩɇḕḗḙḛḝẹẻẽếềểễệἐἑἒἓἔἕὲέ"},
+		{"f",L"ƒḟẛẜẝ"},
+		{"g",L"ĝğġģǥǧǵɠɡɢḡ"},
+		{"h",L"ĥħȟɦɧḣḥḧḩḫẖ"},
+		{"i",L"ìíîïĩīĭįıǐȉȋɨɩɪḭḯỉịἰἱἲἳἴἵἶἷὶίῐῑῒΐῖῗ"},
+		{"j",L"ĵǰȷɉ"},
+		{"k",L"ķĸƙǩḱḳḵ"},
+		{"l",L"ĺļľŀłƖƚȴɫɬɭḷḹḻḽ"},
+		{"m",L"ḿṁṃ"},
+		{"n",L"ñńņňŉŋƞǹȵɲɳɴṅṇṉṋἠἡἢἣἤἥἦἧὴήᾐᾑᾒᾓᾔᾕᾖᾗῂῃῄῆῇ"},
+		{"o",L"ðòóôõöøōŏőǒǫǭǿȍȏȫȭȯȱɵṍṏṑṓọỏốồổỗộớờởỡợὀὁὂὃὄὅὸό"},
+		{"p",L"ṕṗῤῥ"},
+		{"r",L"ŕŗřȑȓɍṙṛṝṟ"},
+		{"s",L"śŝşšșȿṡṣṥṧṩ"},
+		{"t",L"ţťŧƫƭțȶṫṭṯṱẗ"},
+		{"u",L"ùúûüũūŭůűųưǔǖǘǚǜȕȗṳṵṷṹṻụủứừửữựὐὑὒὓὔὕὖὗὺύῠῡῢΰῦῧ"},
+		{"v",L"ɣṽṿ"},
+		{"w",L"ŵẁẃẅẇẉẘὼώᾠᾡᾢᾣᾤᾥᾦᾧῲῳῴῶῷ"},
+		{"x",L"ẋẍ"},
+		{"y",L"ýÿŷƴȳɏẏẙỳỵỷỹỿ"},
+		{"z",L"źżžƶȥẑẓẕ"}
+	};
+
+	// for each input symbol
+	std::string res = "";
+	for(auto c: str)
+	{
+		// default output
+		std::string sym = "";
+		if(c <= 255)
+			sym.push_back(c);
+		// check & replace by dictionary items
+		for(auto dic: dict)
+		{
+			if(dic.list.find(c) != std::wstring::npos)
+			{
+				sym = dic.rep;
+				break;
+			}
+		}
+		res.append(sym);
+	}
+
+	return res;
 }
 
 
@@ -322,31 +407,44 @@ std::wstring get_com(MODE mode, std::wstring key=L"")
 
 
 // DLL entry: get list of all COM ports to char buffer of max size
-__int32 get_com_list(char* buf,__int32 size)
+__int32 get_com_list(char* buf,__int32 size,__int32 to_ascii)
 {
-	auto report = wstring_to_utf8(get_com(MODE::LIST));
+	std::string report;
+	if(to_ascii)
+		report = str_to_ascii(get_com(MODE::LIST));
+	else
+		report = wstring_to_utf8(get_com(MODE::LIST));
 	return(sprintf_s(buf,size,"%s\n",report.c_str()));
 }
 
 // DLL entry: get COM name(s) by descriptor string
-__int32 get_com_by_desc(char* buf,__int32 size,char* desc)
+__int32 get_com_by_desc(char* buf,__int32 size,char* desc,__int32 to_ascii)
 {
-	auto report = wstring_to_utf8(get_com(MODE::BY_DESC,utf8_to_wstring(desc)));
+	std::string report;
+	if(to_ascii)
+		report = str_to_ascii(get_com(MODE::BY_DESC,utf8_to_wstring(desc)));
+	else
+		report = wstring_to_utf8(get_com(MODE::BY_DESC,utf8_to_wstring(desc)));
 	return(sprintf_s(buf,size,"%s\n",report.c_str()));
 }
 
 // DLL entry: get COM port descriptor by COM name string
-__int32 get_com_desc(char* buf,__int32 size,char* name)
+__int32 get_com_desc(char* buf,__int32 size,char* name,__int32 to_ascii)
 {
-	auto report = wstring_to_utf8(get_com(MODE::BY_NAME,utf8_to_wstring(name)));
+	std::string report;
+	if(to_ascii)
+		report = str_to_ascii(get_com(MODE::BY_NAME,utf8_to_wstring(name)));
+	else
+		report = wstring_to_utf8(get_com(MODE::BY_NAME,utf8_to_wstring(name)));
 	return(sprintf_s(buf,size,"%s\n",report.c_str()));
 }
 
 // DLL entry: get lib version string
 __int32 get_ver(char* buf, __int32 size)
 {
-	return(sprintf_s(buf, size, "COM port BusReportedDeviceDesc string extractor, V1.0, " __DATE__ ", (c) Stanislav Maslan"));
+	return(sprintf_s(buf, size, "COM port BusReportedDeviceDesc string extractor, V1.1, " __DATE__ ", (c) Stanislav Maslan"));
 }
+
 
 
 
@@ -354,13 +452,18 @@ __int32 get_ver(char* buf, __int32 size)
 // console entry point
 int main(int argc,char* argv[])
 {
+	// convert all text outpus to ascii?
+	int to_ascii = argc >= 2 && std::string(argv[1]).compare("-toascii") == 0;	
+	argc -= to_ascii;
+	int argid = 1 + to_ascii;
+	
 	// mode of operation?
 	MODE mode = MODE::UNKNOWN;
-	if(argc == 2 && std::string(argv[1]).compare("-list") == 0)
+	if(argc == 2 && std::string(argv[argid]).compare("-list") == 0)
 		mode = MODE::LIST;
-	else if(argc == 3 && std::string(argv[1]).compare("-name") == 0)
+	else if(argc == 3 && std::string(argv[argid]).compare("-name") == 0)
 		mode = MODE::BY_NAME;
-	else if(argc == 3 && std::string(argv[1]).compare("-desc") == 0)
+	else if(argc == 3 && std::string(argv[argid]).compare("-desc") == 0)
 		mode = MODE::BY_DESC;
 	
 	if(mode == MODE::UNKNOWN)
@@ -371,11 +474,11 @@ int main(int argc,char* argv[])
 		wprintf(L"\nusage examples:\n");
 		wprintf(L"get_com_descriptor.exe\n");
 		wprintf(L" - shows help\n\n");
-		wprintf(L"get_com_descriptor.exe -list\n");
+		wprintf(L"get_com_descriptor.exe [-toascii] -list\n");
 		wprintf(L" - show list of all COM ports and their BusReportedDeviceDesc strings\n\n");
-		wprintf(L"get_com_descriptor.exe -name COM8\n");
+		wprintf(L"get_com_descriptor.exe [-toascii] -name COM8\n");
 		wprintf(L" - show BusReportedDeviceDesc string for given COM name\n\n");
-		wprintf(L"get_com_descriptor.exe -desc \"FTDI usb bridge\"\n");
+		wprintf(L"get_com_descriptor.exe [-toascii] -desc \"FTDI usb bridge\"\n");
 		wprintf(L" - show COM names matching given BusReportedDeviceDesc string\n");
 		return(0);
 	}
@@ -383,13 +486,16 @@ int main(int argc,char* argv[])
 	// port search key
 	std::wstring key;
 	if(mode != MODE::LIST)
-		key = utf8_to_wstring(argv[2]);		
+		key = utf8_to_wstring(argv[argid + 1]);
 
 	// do stuff
 	auto report = get_com(mode, key);
 
 	// print result
-	wprintf(L"%ws\n", report.c_str());
+	if(to_ascii)
+		wprintf(L"%hs\n",str_to_ascii(report).c_str());
+	else
+		wprintf(L"%ws\n", report.c_str());
 
 	return(0);
 }
