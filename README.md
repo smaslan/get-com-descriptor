@@ -96,6 +96,20 @@ I use lot of COM port devices in LabVIEW projects, so I also made a simple DLL w
 
 ![Open VISA by COM descritor](./fig/get_com_desc_open_visa.png)
 
+I also made a simple set of VIs as a replacement for VISA Resource Control that will show COM ports alog with their descriptor strings:
+
+![Custom VISA Init Selector](./fig/custom_visa_init_selector.png)
+
+![Custom VISA Enumerate](./fig/custom_visa_enumerate.png)
+
+![Custom VISA Get Address](./fig/custom_visa_get_address.png)
+
+![Custom VISA Selector Demo](./fig/custom_visa_demo_diag.png)
+
+This is how it appears:
+
+![Custom VISA Selector Demo](./fig/custom_visa_demo.png)
+
 
 ## License
 All parts of the project are distributed under [MIT license](./LICENSE.txt).
